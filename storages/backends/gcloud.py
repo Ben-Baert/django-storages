@@ -290,27 +290,8 @@ class GoogleCloudStorage(CompressStorageMixin, BaseStorage):
         """
         name = self._normalize_name(clean_name(name))
         blob = self.bucket.blob(name)
-        blob_params = self.get_object_parameters(name)
-        no_signed_url = (
-            blob_params.get('acl', self.default_acl) == 'publicRead' or not self.querystring_auth)
 
-        if not self.custom_endpoint and no_signed_url:
-            return blob.public_url
-        elif no_signed_url:
-            return '{storage_base_url}/{quoted_name}'.format(
-                storage_base_url=self.custom_endpoint,
-                quoted_name=_quote(name, safe=b"/~"),
-            )
-        elif not self.custom_endpoint:
-            return blob.generate_signed_url(
-                expiration=self.expiration, version="v4"
-            )
-        else:
-            return blob.generate_signed_url(
-                bucket_bound_hostname=self.custom_endpoint,
-                expiration=self.expiration,
-                version="v4",
-            )
+        return blob.public_url
 
     def get_available_name(self, name, max_length=None):
         name = clean_name(name)
